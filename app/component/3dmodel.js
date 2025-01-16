@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import GUI from "lil-gui";
+import gsap from "gsap";
 const ThreeScene = () => {
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const ThreeScene = () => {
 
     // create OrbitControls for control the camera
     const controls = new OrbitControls(camera, renderer.domElement);
+   
     controls.enableDamping = true; // Enable damping for smooth interactions
     controls.dampingFactor = 0.05;   //smoothness unit
 
@@ -186,34 +188,42 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-
-
-
-
-
-
-
-
-
-
-
+gsap.to(plane.rotation,{duration:2,delay:2,x:15})   //plane rotate animation show after 2s for 2s in x direction
 
     // Mouse interaction for rotating the group
     let mouseX = 0;                              //let the mouse x position is 0 initialy
     let mouseY = 0;                             //let the mouse y position is 0   initioly
+    let targetX = 0;
+    let targetY = 0;
+    const damping = 0.01; // Controls the smoothness
 
     const onMouseMove = (event) => {
-      mouseX = (event.clientX / window.innerWidth) - 0.5;         //get the x positions of the cursor/mouse
-      mouseY = -(event.clientY / window.innerHeight) - 0.5;       // get the y position of the cursor /mouse
+      const halfWidth = window.innerWidth ;
+      const halfHeight = window.innerHeight ;
+      mouseX = (event.clientX - halfWidth) / halfWidth;
+      mouseY = (event.clientY - halfHeight) / halfHeight;
     };
     window.addEventListener("mousemove", onMouseMove);      // add mouse event listener
 
     // Animation loop
     const animate = () => {
-      group.rotation.y += 0.01; // Continuous rotation  group along y axis
-      plane.rotation.y += 0.05               // rotate the plane along to y axis
-      sphere.rotation.x += 0.1               // rotate the sphere object along the x axis
-      torus.rotation.y += 0.05               // rotate the torus object along y axis
+
+
+// Smoothly update the target rotation
+targetX += (mouseX - targetX) * damping;
+targetY += (mouseY - targetY) * damping;
+
+// Apply rotation
+plane.rotation.y = targetX * Math.PI*4; // Rotate horizontally
+plane.rotation.x = targetY * Math.PI*4; // Rotate vertically
+// camera.position.x = mouseY * Math.PI*2;
+// camera.position.y = mouseX * Math.PI*2;
+      // group.rotation.y += 0.01; // Continuous rotation  group along y axis
+      // plane.rotation.y += 0.05               // rotate the plane along to y axis
+      sphere.rotation.x += 0.03               // rotate the sphere object along the x axis
+      sphere.rotation.y += 0.03
+      torus.rotation.y += 0.03               // rotate the torus object along y axis
+      torus.rotation.x += 0.03 
       camera.position.x = Math.sin(mouseX * Math.PI * 2) * 7; //camera change position based on mouse X
       camera.position.z = Math.cos(mouseX * 2 * Math.PI) * 7; // camera change position  based on mouse X
       camera.position.y = Math.cos(mouseY * 2 * Math.PI) * 7; //camera change position based on mouse Y
